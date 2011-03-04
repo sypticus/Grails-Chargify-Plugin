@@ -230,8 +230,8 @@ class ChargifyService {
             subscription = null
             String responseMessage = conn.getResponseMessage()
             // this response code should be 422 - unprocessable information.
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-            log.error("changeSubscription: Transaction failed. responseCode: ${responseCode}. Error message is : ${responseMessage}. Error body is : ${bufferedReader.text}")
+           // BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+            log.error("changeSubscription: Transaction failed. responseCode: ${responseCode}. Error message is : ${responseMessage}.")//Error body is : ${bufferedReader.text}")
             def err = new XmlSlurper().parse(conn.getErrorStream())
             log.error("Errors : ${err}")
             response.message = err
