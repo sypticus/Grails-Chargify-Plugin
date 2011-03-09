@@ -342,6 +342,30 @@ class ChargifyService {
            return response
        }
 
+    public Response<Adjustment> createAdjustment(subscriptionId,amount, String memo, String adjustmentMethod = null) {
+           Response<Adjustment> response = new Response<Adjustment>()
+           String urlStr = "${transactionsUrl}/${subscriptionId}/adjustments.xml"
+           HttpURLConnection conn = getChargifyConnection(urlStr, POST)
+           Adjustment adjustment = new Adjustment(memo: memo, amount:amount, adjustmentMethod:adjustmentMethod)
+           String adjustmentXml = adjustment.getXml()
+           int responseCode = processChargifyRequest(conn, adjustmentXml)
+           response.status = responseCode
+           if (responseCode == CHARGIFY_RESPONSE_CODE_OK) {
+               def adjustmentResp = adjustment.getAdjustmentFromXml(conn.content?.text)
+               response.entity = adjustmentResp
+               response.message = "Success"
+           }else if (responseCode == 500)
+           {
+               def err = new XmlSlurper().parse(conn.getErrorStream())
+               log.error("Errors : ${err}")
+               response.message = err
+           }else{
+               response.message= "error ${responseCode}"
+           }
+           conn.disconnect()
+           return response
+       }
+
 
     int processChargifyRequest(HttpURLConnection connection, String requestContent){
         def writer = new OutputStreamWriter(connection.outputStream)
